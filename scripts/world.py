@@ -24,26 +24,46 @@ class World:
                 pickle.dump({}, f)
             
     def world_surface(self):
-        largest_x = 0
-        largest_y = 0
         
-        for key in list(self.tiles.keys()):
-            x,y = map(int, key.split(";"))
-            largest_x = max(largest_x, x)
-            largest_y = max(largest_y, y)
+        glargest_x = 0 
+        glargest_y = 0
+        
+        surfs = []
+        for tiles in self.tiles.values():
+            largest_x = 0
+            largest_y = 0
+            
+            for key in list(tiles.keys()):
+                x,y = map(int, key.split(";"))
+                largest_x = max(largest_x, x)
+                largest_y = max(largest_y, y)
+            
+            if glargest_x < largest_x:
+                glargest_x = largest_x
+            if glargest_y < largest_y:
+                glargest_y = largest_y
+            
+            surf = pygame.Surface(((largest_x + 1) * 32,(largest_y + 1) * 32))
+            
+            for key in list(tiles.keys()):
+                x,y = map(int, key.split(";"))
+                t_info = tiles[key]
                 
-        surf = pygame.Surface(((largest_x + 1) * 32,(largest_y + 1) * 32))
+                img = self.images[t_info[0]]
+                img.set_alpha(255)
+                surf.blit(self.images[t_info[0]], (x*tsize,y*tsize))
+                
+            surf.set_colorkey((0,0,0))
+            surfs.append(surf)
         
-        for key in list(self.tiles.keys()):
-            x,y = map(int, key.split(";"))
-            t_info = self.tiles[key]
+        
+        surf = pygame.Surface( ((glargest_x + 1) * 32,(glargest_y + 1) * 32) )
+        for surfe in surfs:
             
-            img = self.images[t_info[0]]
-            img.set_alpha(255)
-            surf.blit(self.images[t_info[0]], (x*tsize,y*tsize))
-            
+            surf.blit(surfe, (0,0))
+        
         surf.set_colorkey((0,0,0))
-        return surf
+        return surf , surfs
     
     def save(self):
         
@@ -51,9 +71,14 @@ class World:
             pickle.dump(self.tiles, f)
     
     def set_tile(self, pos, type, col=False, z=1, climb=False):
-        self.tiles[f"{pos[0]};{pos[1]}"] = (type, col, z, climb)
-    def er_tile(self, pos):
         try:
-            del self.tiles[f"{pos[0]};{pos[1]}"]
+            self.tiles[z][f"{pos[0]};{pos[1]}"] = (type, col, z, climb)
+        except KeyError:
+            self.tiles[z]= {}
+            self.tiles[z][f"{pos[0]};{pos[1]}"] = (type, col, z, climb)
+            
+    def er_tile(self, pos,z):
+        try:
+            del self.tiles[z][f"{pos[0]};{pos[1]}"]
         except Exception:
             pass
