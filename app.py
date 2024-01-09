@@ -6,6 +6,7 @@ from scripts.tasks import TaskManager
 from scripts.player import Player
 from scripts.world import World
 from scripts.utils import load_images_from_folder
+from scripts.assets import assets
 
 class Game:
     
@@ -19,9 +20,7 @@ class Game:
         self.tasks = TaskManager()
         self.tasks.bind(K_ESCAPE, self.quit)
         
-        self.assets = {
-            "world" : load_images_from_folder("assets/world/")
-        }
+        self.assets = assets.copy()
         
         self.world = World(self)
         self.world.load_world("1.wlr")
@@ -48,8 +47,7 @@ class Game:
         
         dt = time()- self.last_time
         self.last_time = time()
-        return dt * 60
-        
+        return dt * 60    
     
     def quit(self):
         import sys 

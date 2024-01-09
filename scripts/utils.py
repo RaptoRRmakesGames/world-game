@@ -1,6 +1,7 @@
 import pygame 
 import os 
 
+pygame.display.set_mode()
 def render_rect(pos, offset, w=32,h=32):
     
     return pygame.FRect(pos[0]- offset[0], pos[1]-offset[1], w,h)
